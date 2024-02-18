@@ -1,7 +1,5 @@
-use ckb_jsonrpc_types::{
-    self as rpc_types, Alert, BlockNumber, EpochNumber, JsonBytes, Script, Transaction,
-};
-use ckb_types::{bytes::Bytes, packed, prelude::*, H256};
+use ckb_jsonrpc_types::{self as rpc_types, Alert, BlockNumber, EpochNumber, Transaction};
+use ckb_types::{packed, prelude::*, H256};
 use clap::{App, Arg, ArgMatches};
 use ipnetwork::IpNetwork;
 use multiaddr::Multiaddr;
@@ -13,7 +11,7 @@ use std::time::Duration;
 use super::{CliSubCommand, Output};
 use crate::utils::arg_parser::{
     ArgParser, DurationParser, FeeRateStatisticsTargetParser, FilePathParser, FixedHashParser,
-    FromStrParser, HexParser,
+    FromStrParser,
 };
 use crate::utils::rpc::{
     BannedAddr, BlockEconomicState, BlockView, EpochView, HeaderView, HttpRpcClient,
@@ -1039,7 +1037,7 @@ impl<'a> CliSubCommand for RpcSubCommand<'a> {
                 self.rpc_client.truncate(target_tip_hash)?;
                 Ok(Output::new_success())
             }
-            ("generate_block", Some(m)) => {
+            ("generate_block", Some(_m)) => {
                 let resp = self.rpc_client.generate_block()?;
                 Ok(Output::new_output(resp))
             }

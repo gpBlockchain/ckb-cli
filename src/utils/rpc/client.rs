@@ -1,8 +1,6 @@
 use std::convert::TryInto;
 
-use ckb_jsonrpc_types::{
-    Alert, BlockNumber, CellWithStatus, EpochNumber, JsonBytes, OutputsValidator, Script,
-};
+use ckb_jsonrpc_types::{Alert, BlockNumber, CellWithStatus, EpochNumber, OutputsValidator};
 
 use super::primitive;
 use super::types;
