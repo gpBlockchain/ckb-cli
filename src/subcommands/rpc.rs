@@ -1,7 +1,5 @@
-use ckb_jsonrpc_types::{
-    self as rpc_types, Alert, BlockNumber, EpochNumber, JsonBytes, Script, Transaction,
-};
-use ckb_types::{bytes::Bytes, packed, prelude::*, H256};
+use ckb_jsonrpc_types::{self as rpc_types, Alert, BlockNumber, EpochNumber, Transaction};
+use ckb_types::{packed, prelude::*, H256};
 use clap::{App, Arg, ArgMatches};
 use ipnetwork::IpNetwork;
 use multiaddr::Multiaddr;
@@ -13,7 +11,7 @@ use std::time::Duration;
 use super::{CliSubCommand, Output};
 use crate::utils::arg_parser::{
     ArgParser, DurationParser, FeeRateStatisticsTargetParser, FilePathParser, FixedHashParser,
-    FromStrParser, HexParser,
+    FromStrParser,
 };
 use crate::utils::rpc::{
     BannedAddr, BlockEconomicState, BlockView, EpochView, HeaderView, HttpRpcClient,
@@ -335,20 +333,6 @@ impl<'a> RpcSubCommand<'a> {
                     )
                     .about("[TEST ONLY] Truncate blocks to target tip block"),
                 App::new("generate_block")
-                    .arg(
-                        Arg::with_name("json-path")
-                            .long("json-path")
-                            .takes_value(true)
-                            .validator(|input| FilePathParser::new(true).validate(input))
-                            .about("Block assembler lock script (json format)")
-                    )
-                    .arg(
-                        Arg::with_name("message")
-                            .long("message")
-                            .takes_value(true)
-                            .validator(|input| HexParser.validate(input))
-                            .about("Block assembler message (hex format)")
-                    )
                     .about("[TEST ONLY] Generate an empty block")
             ])
     }
@@ -1053,19 +1037,8 @@ impl<'a> CliSubCommand for RpcSubCommand<'a> {
                 self.rpc_client.truncate(target_tip_hash)?;
                 Ok(Output::new_success())
             }
-            ("generate_block", Some(m)) => {
-                let json_path_opt: Option<PathBuf> =
-                    FilePathParser::new(true).from_matches_opt(m, "json-path")?;
-                let script_opt: Option<Script> = if let Some(json_path) = json_path_opt {
-                    let content = fs::read_to_string(json_path).map_err(|err| err.to_string())?;
-                    Some(serde_json::from_str(&content).map_err(|err| err.to_string())?)
-                } else {
-                    None
-                };
-                let message_opt: Option<Bytes> = HexParser.from_matches_opt(m, "message")?;
-                let resp = self
-                    .rpc_client
-                    .generate_block(script_opt, message_opt.map(JsonBytes::from_bytes))?;
+            ("generate_block", Some(_m)) => {
+                let resp = self.rpc_client.generate_block()?;
                 Ok(Output::new_output(resp))
             }
             _ => Err(Self::subcommand().generate_usage()),
